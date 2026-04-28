@@ -1,0 +1,538 @@
+A complete architectural and product blueprint for a modern, SEO-first, scalable editorial platform. Use this as your single source of truth from discovery through launch.
+
+A. Product Overview
+Vision: Build a premium, editorial-grade blogging platform that rivals Medium, Ghost, and Substack in reading experience, while giving content teams the power of a headless CMS (Strapi/Sanity-class) with built-in SEO intelligence, performance budgets, and growth tooling.
+
+Positioning: Not "a blog" — a content operating system. Three surfaces:
+
+Reader-facing site — fast, beautiful, accessible, SEO-dominant.
+Admin/CMS — structured content, workflows, roles, audit trails.
+Author workspace — block editor with live preview, AI assist, and SEO scoring.
+Differentiators:
+
+Block-based editor with live multi-device preview and SEO score gating publish.
+Built-in topic clusters & internal-link suggester (semantic).
+Auto-generated OG images, schema, and sitemaps.
+Core Web Vitals budgets enforced in CI.
+First-class dark mode, reading progress, bookmarks, reactions.
+Newsletter + membership-ready from day one.
+B. Core Goals
+Goal	Measurable Target
+Reading experience	Lighthouse Perf ≥ 95 mobile, A11y ≥ 95
+SEO foundation	100% indexable canonical URLs, valid schema on every post
+Speed	LCP < 2.5s, CLS < 0.1, INP < 200ms
+Editor productivity	< 30s from idea to draft, autosave every 5s
+Scalability	10M pageviews/mo on edge + Postgres without re-architecture
+Security	OWASP Top 10 mitigated, RBAC enforced server-side
+Growth-ready	Newsletter, reactions, comments, memberships pluggable
+C. Target Users
+Readers — mobile-heavy, skim then read deep, expect dark mode, fast loads, share buttons.
+Authors — write 1–4 posts/week, need distraction-free editor, AI assist, autosave.
+Editors — manage queue, enforce style, schedule, assign.
+SEO Managers — audit metadata, redirects, schema, internal links.
+Admins — manage users, roles, settings, integrations.
+Analysts — track content performance, decay, funnel.
+D. Full Feature Breakdown (Index)
+Public site (E), Admin panel (F), Editor (G), Dashboard (H), SEO (I), Performance (J), Design (K), IA (L), Pages (M), DB (N), Roles (O), API (P), Stack (Q), Folders (R), Workflow (S), Analytics (T), Security (U), Advanced (V), Roadmap (W), QA (X), Launch (Y), Strategy (Z). Detailed in sections below.
+
+E. Public Website Features
+Global
+
+Sticky header w/ mega-menu (categories, search, theme toggle, sign-in).
+Command-palette search (⌘K) powered by Meilisearch/Algolia.
+Dark/light/system theme with no-flash SSR script.
+Cookie banner + consent mode v2.
+Footer: nav, newsletter, social, legal, sitemap link.
+Homepage
+
+Editorial hero (curated featured post, large image, category chip).
+"Latest" rail (paginated/infinite).
+"Trending now" (last 7 days by view velocity).
+Featured categories grid w/ counts.
+Author spotlight carousel.
+Newsletter inline CTA (double opt-in).
+Editor's picks + topic clusters.
+Listing pages (/blog, /category/[slug], /tag/[slug], /author/[slug])
+
+Filter by tag/date/author, sort by latest/trending.
+SSG + ISR, paginated with proper rel=next/prev and canonical.
+Per-page meta + ItemList schema.
+Article page (/blog/[slug])
+
+Premium typography (drop-cap optional), 65–75ch measure.
+Sticky reading progress bar + estimated read time.
+Auto-generated TOC from H2/H3 with scroll-spy.
+Inline blocks: code (Shiki), callouts, image w/ caption + lightbox, embeds (YouTube/Tweet/CodePen), tables, FAQs, CTAs.
+Author byline w/ avatar, bio, follow.
+Reactions (clap/like emoji bar), bookmark (auth required), share menu (native + copy link + X/LinkedIn/WhatsApp).
+View counter (debounced, edge-aggregated).
+Related posts (vector similarity), Recommended (collaborative filtering fallback to category).
+Comments (threaded, moderated, optional Disqus/Giscus fallback).
+Breadcrumb (with schema).
+Prev/Next in series.
+Other pages
+
+/search (instant search, filters, highlighting).
+/about, /contact (with spam-protected form), /privacy, /terms.
+HTML /sitemap + XML /sitemap.xml (split if >50k URLs).
+Custom 404 with search + popular posts.
+Optional: /series/[slug], /topics/[cluster], /i18n locale switch.
+F. Admin Panel Features
+Secure login (email+password, Google, optional 2FA TOTP).
+Dashboard overview (see H).
+Posts: list w/ filters (status, author, category, date), bulk actions, kanban view (Draft → Review → Scheduled → Published → Archived).
+Categories/Tags: CRUD, merge, redirect on rename.
+Media library: grid/list, folders, search, alt-text bulk edit, focal point, EXIF strip, format conversion.
+Users & Roles: invite, deactivate, role assignment, session revoke.
+Comments moderation: queue, spam, approve, ban user, shadow-ban.
+SEO: global defaults, per-template overrides, schema templates.
+Redirects: 301/302 manager, CSV import/export, chain detector.
+Broken links monitor: scheduled crawl, alerts.
+Site settings: branding, navigation, footer, homepage modules (drag-drop), social, integrations.
+Newsletter: lists, campaigns, automations, subscriber management.
+Notifications: in-app + email digests.
+Audit logs: who did what, when, IP, diff viewer.
+Backups/Export: JSON+media archive, scheduled.
+G. Blog Editor Features
+Foundation: TipTap (ProseMirror) or Lexical with custom block schema. Persisted as structured JSON (not HTML) for portability and re-rendering.
+
+Blocks: paragraph, H2–H4, quote, code (Shiki + language picker + filename + line highlights), bullet/ordered/check list, image (alt, caption, focal, lightbox toggle), gallery, video (mp4/HLS/YouTube), embed (oEmbed), table, divider, button/CTA, FAQ accordion, callout (info/warn/success/danger), bookmark card, newsletter inline, reusable snippet.
+
+Authoring UX
+
+Slash commands /, markdown shortcuts, drag handles, block menu.
+Inline toolbar (bold/italic/underline/strike/code/link/highlight).
+Internal-link suggester (typeahead over published posts).
+Anchor links per heading (auto slugs, editable).
+Image: drag-drop upload, paste from clipboard, auto WebP/AVIF, alt-text required to publish.
+Autosave every 5s + on blur; conflict resolution via revision IDs.
+Revision history with diff & restore.
+Live preview: side-by-side toggle; device frames (desktop/tablet/mobile); secure preview URLs (signed JWT).
+Draft → Review → Schedule → Publish; un-publish; schedule timezone-aware.
+SEO panel (in-editor)
+
+Slug, meta title (with pixel-width meter), meta description (length meter), canonical, OG image (auto-generated default), Twitter card, schema type (Article/HowTo/FAQ/Review), noindex, nofollow, robots meta.
+Content score (0–100): title length, meta length, H1 single, H2/H3 hierarchy, alt-text coverage, internal links ≥2, external links ≥1, paragraph length, Flesch readability, focus keyword density, slug quality, image weight.
+Publish-blocking warnings vs soft warnings (configurable).
+Duplicate slug detection, thin-content warning (<300 words), keyword cannibalization check.
+H. Dashboard Features
+KPI cards: total posts, drafts, scheduled, published, archived; categories, tags, users; pending comments.
+
+Widgets: top posts (7/30/90d), recent posts, recent activity feed, traffic overview (sessions, users, pageviews), organic traffic, top entry pages, top authors, top search queries, broken links, SEO warnings, Core Web Vitals (field data via CrUX or RUM), low-performing content (high impressions / low CTR), content needing refresh (>180 days), top converting CTAs, newsletter growth (DAU/WAU subs, churn), engagement (avg read %, scroll depth, reactions).
+
+Filters: date range, author, category. Export CSV.
+
+I. SEO and Technical SEO System
+On-page
+
+One H1 per page; auto-derived from title; H2/H3 enforced hierarchy.
+Editable slug with kebab-case validator, history of old slugs → auto 301.
+Meta title/description with templates (%title% | %site%), per-route overrides.
+Canonical tag on every page; default self-canonical; cross-domain support.
+Open Graph + Twitter cards; per-post OG image with auto-generated fallback (Satori).
+Internal-link suggester (semantic + same-cluster).
+Topic clusters: pillar pages link to cluster posts and vice versa.
+Schema (JSON-LD)
+
+Organization, WebSite (+ SearchAction), BreadcrumbList, Article/BlogPosting, Person (author), FAQPage, HowTo, ImageObject, VideoObject. Validate via schema.org and Rich Results Test in CI.
+Crawlability
+
+robots.txt generated from settings; environment-aware (block noindex env).
+sitemap.xml index + segmented (posts, categories, tags, authors, pages); only canonical, 200, indexable URLs; lastmod from DB.
+rel=next/prev on paginated archives + canonical to page.
+Hreflang for multilingual.
+Hygiene
+
+301/302 manager, redirect-chain detector (>1 hop = warn).
+Orphan-page report, duplicate-content detector (shingles).
+Broken-link crawler (weekly).
+HTTPS only, HSTS, single canonical host (apex vs www).
+Image SEO: required alt, descriptive filenames, lazy-loading except LCP.
+Pre-publish SEO checklist (gate publish): title 30–60 chars, desc 120–160, focus keyphrase in title/H1/first 100 words, slug ≤ 60 chars, ≥1 image with alt, ≥2 internal links, schema valid, OG image present.
+
+J. Performance Optimization System
+Targets: LCP < 2.5s, CLS < 0.1, INP < 200ms (mobile p75).
+
+Rendering
+
+SSG for posts/listings + ISR (revalidate on publish via webhook).
+Edge SSR for personalized surfaces (bookmarks, auth).
+Streaming + Suspense for above-the-fold priority.
+Assets
+
+AVIF/WebP via image pipeline; responsive srcset + sizes; LCP image priority.
+font-display: swap, self-hosted variable fonts, subset by language.
+Code-split routes; defer non-critical JS; tree-shake; no client JS on static blocks.
+Preload hero image + critical font; preconnect to CDN/analytics.
+Caching
+
+CDN (Cloudflare/Vercel Edge) with stale-while-revalidate.
+HTTP cache headers: long-immutable for hashed assets, SWR for HTML.
+Redis for hot queries (post by slug, sitemap fragments, trending).
+Postgres: indexes on slug, status+published_at, author_id, category_id, GIN on tags/tsvector.
+Monitoring
+
+Web Vitals RUM → store in DB; dashboard widget.
+Lighthouse CI on PRs; budgets fail build (JS ≤ 170KB gz, image LCP ≤ 200KB).
+Sentry performance traces.
+K. UI/UX and Design Direction
+Aesthetic: editorial premium — think The Verge × Stripe Press × Linear. Confident typography, generous whitespace, restrained color, purposeful motion.
+
+Design tokens (CSS variables, oklch)
+
+Color: --bg, --surface, --surface-elev, --fg, --fg-muted, --border, --primary, --primary-fg, --accent, --success, --warn, --danger. Light + dark.
+Typography: display (e.g., Fraunces or Instrument Serif), body (Inter or Geist), mono (JetBrains Mono). Modular scale 1.250.
+Spacing: 4px base, scale 0.5–24.
+Radii: sm 6, md 10, lg 14, xl 20, 2xl 28.
+Shadows: layered, low-opacity.
+Motion: 150–300ms, ease-out; respect prefers-reduced-motion.
+Components: Button, Input, Select, Combobox, Dialog, Sheet, Tabs, Tooltip, Toast, Card, Avatar, Badge, Breadcrumb, Pagination, Skeleton, EmptyState, DataTable, Editor blocks. All keyboard-accessible (WCAG 2.2 AA).
+
+Layouts
+
+Article: 1-col 680px content + optional right rail TOC on ≥1280px.
+Listing: card grid responsive (1/2/3 cols).
+Admin: collapsible sidebar + topbar + content area.
+Breakpoints: 480, 640, 768, 1024, 1280, 1536.
+
+Micro-interactions: hover lift on cards, subtle text-cursor on TOC, progress bar fluid, copy-link toast, like burst.
+
+L. Information Architecture & Sitemap
+/                      (index)
+/blog                  (listing, paginated)
+/blog/[slug]           (article)
+/category/[slug]
+/tag/[slug]
+/author/[slug]
+/series/[slug]         (optional)
+/topics/[cluster]      (pillar)
+/search?q=
+/about /contact /privacy /terms
+/newsletter /subscribe/confirm
+/sitemap (HTML)        /sitemap.xml /robots.txt /rss.xml
+/404 /500
+
+/admin                 (dashboard)
+/admin/posts /posts/new /posts/[id]
+/admin/media /categories /tags /comments
+/admin/users /roles
+/admin/seo /redirects /broken-links
+/admin/analytics /audit-log
+/admin/settings /settings/menus /settings/footer /settings/integrations
+/admin/notifications
+
+/api/* (server routes — webhooks, search, RSS, OG images)
+Indexable: all public content, canonical paginated archives. Noindex: /admin/*, /search, /preview/*, auth pages, thank-you pages, paginated pages > 1 (optional).
+
+M. Page-by-Page Breakdown
+For each page: purpose, modules, data, SEO meta, perf notes.
+
+Home — hero (latest featured), trending, categories, authors, newsletter. Data: getFeatured, getTrending(7d), getCategoriesWithCount. SEO: site name + tagline; WebSite + Organization schema.
+Blog listing — paginated 12/page; filters; ItemList schema; canonical per page.
+Article — content + sidebar TOC + related + comments. Article schema; OG image; reading progress; view ping.
+Category/Tag/Author — heading + bio/desc + posts; CollectionPage schema.
+Search — client-side instant search; noindex.
+About/Contact — AboutPage/ContactPage schema; spam-protected form (Turnstile).
+Legal — static MD-rendered.
+404 — search + popular posts.
+Admin Dashboard — KPI grid + widgets; auth-gated.
+Editor — three-pane (blocks | canvas | inspector), top bar with status/save/publish.
+Settings — tabbed; live-validated.
+N. Database Design / Entities
+PostgreSQL. All tables have id uuid pk default gen_random_uuid(), created_at, updated_at. Soft delete via deleted_at where relevant.
+
+users(id, email unique, password_hash, name, avatar_url, bio, locale, status, last_login_at)
+roles(id, name unique)            // super_admin, admin, editor, seo, author, reviewer, moderator, analyst
+user_roles(user_id, role_id) PK(user_id, role_id)
+permissions(id, key unique)       // posts.publish, users.manage, ...
+role_permissions(role_id, permission_id)
+
+author_profiles(user_id pk fk, social json, expertise[], featured bool)
+
+posts(
+  id, slug unique, title, subtitle, excerpt,
+  content_json jsonb, content_html_cache text,
+  status enum('draft','in_review','scheduled','published','archived'),
+  visibility enum('public','members','paid'),
+  author_id fk, primary_category_id fk,
+  cover_image_id fk, cover_focal point,
+  reading_time_min int, word_count int,
+  published_at timestamptz, scheduled_for timestamptz,
+  seo jsonb,                      // {meta_title, meta_desc, canonical, og_image, robots, schema_type, focus_keyword}
+  metrics jsonb,                  // {views, reactions, comments, score}
+  language text default 'en',
+  series_id fk null, series_order int null,
+  is_featured bool, is_pinned bool,
+  search_tsv tsvector
+)
+INDEX posts(status, published_at desc), (author_id), (primary_category_id), GIN(search_tsv), GIN(seo jsonb_path_ops)
+
+post_revisions(id, post_id fk, editor_id fk, content_json, title, seo jsonb, note, created_at)
+post_categories(post_id, category_id) PK
+post_tags(post_id, tag_id) PK
+
+categories(id, slug unique, name, description, parent_id, cover_image_id, seo jsonb)
+tags(id, slug unique, name, description)
+topic_clusters(id, slug, name, pillar_post_id fk)
+cluster_posts(cluster_id, post_id) PK
+
+comments(id, post_id fk, user_id fk null, parent_id fk null, body, status enum('pending','approved','spam','rejected'), ip, ua, created_at)
+comment_moderation_logs(id, comment_id, moderator_id, action, reason, created_at)
+
+media_assets(id, owner_id, folder_id, filename, mime, width, height, size_bytes, alt, caption, focal point, variants jsonb, hash)
+media_folders(id, parent_id, name)
+
+reactions(id, post_id, user_id, kind enum('clap','like','love','insightful'), created_at) UNIQUE(post_id, user_id, kind)
+bookmarks(user_id, post_id, created_at) PK
+
+newsletter_subscribers(id, email unique, status enum('pending','subscribed','unsubscribed','bounced'), source, locale, confirmed_at, unsubscribed_at)
+newsletter_campaigns(id, subject, content_json, sent_at, stats jsonb)
+
+redirect_rules(id, source unique, destination, code smallint, active bool, hits int, last_hit_at)
+seo_audit_logs(id, post_id, score, issues jsonb, created_at)
+
+site_settings(key pk, value jsonb)
+navigation_menus(id, location, items jsonb)
+notifications(id, user_id, type, payload jsonb, read_at, created_at)
+sessions(id, user_id, token_hash, ip, ua, expires_at)
+audit_logs(id, actor_id, action, entity, entity_id, diff jsonb, ip, ua, created_at)
+
+page_views(id, post_id, session_hash, country, referrer, ts)   // partition by month
+search_logs(id, query, results_count, user_hash, ts)
+cta_events(id, post_id, cta_id, kind enum('view','click','convert'), ts)
+Slug uniqueness: unique index + slug history table (post_slug_history(post_id, old_slug, changed_at)) auto-creates 301. Scheduling: cron worker every minute promotes scheduled → published when scheduled_for <= now(). Drafts: never SSR-published; preview via signed token route.
+
+O. Roles and Permissions
+Stored in separate user_roles table (never on users). Server-side check via has_role(user_id, role) SECURITY DEFINER function.
+
+Capability	SuperAdmin	Admin	Editor	SEO	Author	Reviewer	Moderator	Analyst
+Manage users/roles	✅	✅	—	—	—	—	—	—
+Site settings	✅	✅	—	—	—	—	—	—
+Create post	✅	✅	✅	—	✅ (own)	—	—	—
+Edit any post	✅	✅	✅	meta only	own	comment only	—	—
+Publish/Schedule	✅	✅	✅	—	submit	approve	—	—
+Delete post	✅	✅	✅	—	own draft	—	—	—
+Manage SEO/redirects	✅	✅	✅	✅	—	—	—	—
+Moderate comments	✅	✅	✅	—	—	—	✅	—
+View analytics	✅	✅	✅	✅	own	—	—	✅
+Media manage	✅	✅	✅	—	own	—	—	—
+P. API and Module Architecture
+Modules: Auth, Posts, Revisions, Categories, Tags, Clusters, Authors, Media, Comments, Reactions, Bookmarks, Newsletter, Search, SEO, Redirects, Sitemap, Analytics, Notifications, Settings, AI, Webhooks.
+
+Endpoints (REST-ish; tRPC/Server Functions in TanStack):
+
+GET  /api/posts?status=&author=&category=&q=&page=
+POST /api/posts                 (auth)
+GET  /api/posts/:id /:id/revisions
+PUT  /api/posts/:id  PATCH status
+POST /api/posts/:id/publish | /schedule | /unpublish | /archive
+POST /api/media/upload (signed S3) | DELETE /api/media/:id
+GET  /api/search?q=             (proxied to Meilisearch)
+POST /api/comments | PATCH /api/comments/:id (moderate)
+POST /api/reactions  POST /api/bookmarks
+POST /api/newsletter/subscribe | /confirm | /unsubscribe
+GET  /api/sitemap.xml  /rss.xml  /robots.txt  /og?title=...
+POST /api/webhooks/revalidate    (signed)
+POST /api/ai/suggest-title|outline|summary|alt
+GET  /api/analytics/overview|posts|authors
+All write endpoints: zod validation, rate-limited, RBAC-checked server-side, audit-logged.
+
+Q. Recommended Tech Stack
+Layer	Choice	Why
+Framework	TanStack Start (React 19, Vite 7)	SSR/SSG/streaming, file-based routing, server functions, edge-ready
+Lang	TypeScript strict	Safety at scale
+Styling	Tailwind v4 + CSS vars (oklch tokens)	Speed + token-driven design system
+UI primitives	shadcn/ui + Radix	Accessible, customizable
+Editor	TipTap (ProseMirror)	Block schema, collaborative-ready, JSON output
+Code highlight	Shiki (build-time)	Zero-runtime, themeable
+DB	PostgreSQL (Lovable Cloud / Supabase)	Relational, JSONB, FTS, RLS
+Auth	Lovable Cloud Auth	Email + Google, sessions, RLS-friendly
+Storage	Supabase Storage / S3 + CloudFront	Signed uploads, transformations
+Cache	Redis (Upstash)	Hot reads, rate limit, queues
+Search	Meilisearch (self-host) or Algolia	Typo-tolerant, instant, faceted
+Email	Resend + React Email	Transactional + newsletter
+Analytics	Plausible/Umami + custom RUM	Privacy-friendly
+Errors	Sentry	Tracing + replay
+Image	Sharp pipeline / Cloudflare Images	AVIF/WebP, responsive
+OG images	Satori	Edge SVG → PNG
+Hosting	Cloudflare Workers (edge) + Postgres	Global low-latency
+CI/CD	GitHub Actions + Lighthouse CI	Quality gates
+Testing	Vitest, Playwright, axe-core	Unit/E2E/A11y
+R. Project Folder Structure
+src/
+  routes/                      # TanStack file-based routes
+    __root.tsx
+    index.tsx
+    blog.tsx | blog.$slug.tsx
+    category.$slug.tsx | tag.$slug.tsx | author.$slug.tsx
+    search.tsx | about.tsx | contact.tsx
+    sitemap[.]xml.tsx | rss[.]xml.tsx | robots[.]txt.tsx
+    api/
+      og.tsx
+      revalidate.ts
+      webhooks/*.ts
+    _authenticated/             # auth-gated layout
+      admin.tsx (layout)
+      admin/index.tsx (dashboard)
+      admin/posts.tsx | posts.new.tsx | posts.$id.tsx
+      admin/media.tsx | categories.tsx | tags.tsx
+      admin/comments.tsx | users.tsx | roles.tsx
+      admin/seo.tsx | redirects.tsx | analytics.tsx
+      admin/settings.* | audit-log.tsx
+  components/
+    ui/                         # shadcn primitives
+    editor/                     # tiptap blocks, toolbar, inspector
+    blog/                       # ArticleHeader, TOC, ProgressBar, Reactions
+    admin/                      # DataTable, KanbanBoard, Inspector
+    common/                     # Header, Footer, ThemeToggle, SearchPalette
+  features/
+    posts/ (queries, mutations, schema)
+    auth/ media/ seo/ comments/ newsletter/ analytics/
+  lib/
+    supabase/ (client, server, admin, auth-middleware)
+    seo/ (meta, schema, sitemap, og)
+    search/ (meilisearch client)
+    cache/ (redis)
+    ai/ (suggestions)
+    validators/ (zod schemas)
+    utils/
+  hooks/
+  styles.css
+  router.tsx
+supabase/migrations/
+public/
+tests/ (unit, e2e, a11y)
+S. Content Workflow
+Author creates draft → autosave → submits for review.
+Reviewer/Editor receives notification → comments inline → requests changes or approves.
+SEO Manager validates meta, schema, internal links → SEO score must pass threshold.
+Editor schedules or publishes; webhook triggers ISR revalidation + sitemap regen + search index update.
+Revisions stored on every save; restorable; diff viewer.
+Slug change → old slug auto-added to redirect table (301).
+Update workflow: "Refresh" badge after 180d; updates increment updated_at and lastmod.
+Rollback: one-click restore to revision N.
+Preview: signed URL valid 24h, shareable with non-logged-in stakeholders.
+T. Analytics and Reporting
+Custom RUM table page_views partitioned monthly; aggregated nightly into post_metrics_daily.
+Sources: direct, organic, referral, social, email, paid (UTM parsed).
+Reports: top posts, top authors, top categories, top entry pages, exit pages, internal search queries (and zero-result queries), scroll depth (25/50/75/100), reading completion (time-on-page vs reading time), CTA funnel (view → click → convert), newsletter funnel.
+Content decay: posts with 30d traffic ↓ >40% vs prior 30d.
+Refresh queue: published >180d AND (impressions high OR ranking 8–20).
+Export CSV + scheduled email digests.
+U. Security and Reliability
+Auth: bcrypt/argon2 hashes, secure cookies (httpOnly, SameSite=Lax), session rotation, optional TOTP 2FA, password HIBP check.
+RBAC server-side on every mutation; never trust client claims.
+RLS policies on all user-data tables; has_role() SECURITY DEFINER.
+Input validation with zod on every endpoint (min/max/regex).
+XSS: sanitize rendered HTML (DOMPurify on server) for any user-submitted markup; sandboxed iframes for embeds.
+CSRF: same-site cookies + token on state-changing POSTs from browser.
+Rate limiting (Redis token bucket): auth, comments, search, AI.
+File uploads: MIME sniff, size cap, EXIF strip, magic-byte check, virus scan (ClamAV optional).
+Spam: Cloudflare Turnstile on forms + comments; Akismet-style heuristic.
+Secrets in env (server-only process.env), never VITE_*.
+HTTPS + HSTS + CSP (script-src nonce), Referrer-Policy, Permissions-Policy.
+Webhook signature verification (HMAC + timing-safe compare).
+Backups: nightly Postgres + media; PITR; quarterly restore drill.
+Monitoring: Sentry, uptime checks, log aggregation, alerting.
+Audit log immutable (append-only); diff stored.
+V. Advanced / Optional Features
+AI assist: title suggestions, outline generator, summarizer, alt-text from image, internal-link recommender (embeddings via pgvector).
+Semantic search + "more like this" via vector similarity.
+A/B testing for headlines & CTAs (edge-split, statistical significance shown).
+Auto-OG images per post (Satori template).
+PWA: offline reading list, installable, push notifications (Web Push).
+Multilingual: per-post language, hreflang, locale switcher, fallback locale.
+Membership/paid gating: Stripe, paywall block, member-only posts.
+Newsletter automations: welcome series, weekly digest from top posts.
+Podcast/video posts: VideoObject/PodcastEpisode schema, transcript blocks.
+Content repurposing: auto-generate tweet thread / LinkedIn post / email from article.
+Version compare (side-by-side diff).
+Trend detection (rising queries from search logs).
+W. Development Roadmap
+Phase 0 — Discovery (1 wk): finalize IA, wireframes, design tokens, content model. Phase 1 — Foundation (2 wks): repo, Tailwind tokens, shadcn, auth, RBAC, DB schema, migrations, Storage, base routes, root layout, theme, error/404. Phase 2 — Public reading experience (2 wks): home, listing, article, category/tag/author, search, sitemap/robots/rss, schema, OG, perf budgets. Phase 3 — Admin + Editor (3 wks): admin shell, posts CRUD + kanban, TipTap editor with all blocks, autosave, revisions, preview, SEO panel, media library. Phase 4 — SEO + Workflow (1.5 wks): redirects, broken-link crawler, slug history, internal-link suggester, content score, schedule worker, audit log. Phase 5 — Engagement (1.5 wks): comments + moderation, reactions, bookmarks, newsletter (subscribe + double opt-in + campaigns). Phase 6 — Analytics + AI (1.5 wks): RUM, dashboards, decay/refresh, AI assist, semantic related. Phase 7 — Hardening (1 wk): security review, Lighthouse, axe, Playwright E2E, load test. Phase 8 — Launch (3 days): DNS, sitemap submission, Search Console, monitoring, smoke tests.
+
+Total ≈ 12–14 weeks for full version; 5–6 weeks for lean MVP (see Z).
+
+X. Testing / QA Checklist
+Unit (Vitest): validators, slug utils, SEO scorer, schema generators, redirect resolver.
+Integration: API routes with test DB, RLS policies, RBAC matrix.
+E2E (Playwright): signup→write→publish→read; comment moderation; redirect; preview signed URL; pagination canonical.
+A11y (axe-core + manual): keyboard nav, focus rings, color contrast ≥4.5, screen-reader labels, skip-link, prefers-reduced-motion.
+Responsive: 360, 414, 768, 1024, 1280, 1536; landscape; notched devices.
+SEO: sitemap valid + only 200 canonical URLs, robots correct, schema validates (Rich Results), canonical on every page, meta lengths, OG previews (X, LinkedIn, Slack).
+Performance: Lighthouse mobile ≥95 perf/SEO/A11y; CWV field RUM thresholds; bundle budget.
+Security: ZAP baseline, dependency audit, secret scan, RBAC negative tests, rate-limit tests, file-upload abuse tests.
+Cross-browser: Chrome, Safari, Firefox, Edge; iOS Safari, Android Chrome.
+Editor: every block create/edit/delete/reorder; paste-from-Word; image paste; autosave conflict; revision restore.
+Forms: validation, spam (Turnstile), success/error states.
+Broken links: scheduled crawl green.
+i18n (if enabled): hreflang, fallbacks, RTL.
+Y. Launch Checklist
+ Domain + DNS + SSL + HSTS + canonical host enforced
+ Robots.txt + sitemap.xml live; submitted to Search Console + Bing
+ GA4/Plausible verified; consent banner working
+ Schema validated on all templates
+ 404/500 pages and redirects tested
+ Lighthouse mobile ≥ 95 across templates
+ CWV RUM dashboard live
+ Backups + PITR verified by restore drill
+ Sentry alerts wired to on-call
+ Rate limits + Turnstile enabled
+ All admin routes auth-gated; preview tokens signed
+ Newsletter double opt-in confirmed
+ Author bios, About, Contact, Privacy, Terms published
+ Social OG previews confirmed (X, LinkedIn, WhatsApp, Slack)
+ Initial 10–20 cornerstone articles published with internal links
+Z. Final Recommended Build Strategy
+Final stack (recommended)
+TanStack Start (Vite 7, React 19, TS strict) + Tailwind v4 + shadcn/Radix + TipTap + Lovable Cloud (Postgres + Auth + Storage) + Redis (Upstash) + Meilisearch + Resend + Sentry + Cloudflare (CDN/Workers) + Satori (OG) + Plausible + Lighthouse CI.
+
+System architecture (high level)
+[Reader] ──► Cloudflare Edge ──► TanStack SSR/SSG (Workers)
+                │                       │
+                │                       ├─► Postgres (Lovable Cloud) — source of truth
+                │                       ├─► Redis — hot cache + rate limit + queues
+                │                       ├─► Meilisearch — search index
+                │                       ├─► Storage/CDN — media (AVIF/WebP variants)
+                │                       └─► Resend — email
+                ▼
+          Static HTML + JSON (ISR via signed webhook on publish)
+
+[Author/Admin] ──► /admin (auth + RBAC) ──► Server Functions ──► DB/Storage/Search
+                                          └─► Audit log + Notifications
+
+Workers/Cron: schedule publisher, sitemap rebuild, broken-link crawler,
+              metrics aggregator, decay/refresh detector, newsletter sender.
+MVP vs Full version
+MVP (5–6 wks) — ship the reading + writing core:
+
+Auth (email + Google), RBAC (Admin/Editor/Author).
+Posts CRUD, TipTap editor (core blocks: text, heading, image, code, quote, list, callout, embed), autosave, revisions, draft/publish/schedule.
+Public: home, listing, article, category, tag, author, search (Postgres FTS), 404.
+SEO: meta, canonical, OG, JSON-LD (Article/Breadcrumb/Org/WebSite), sitemap, robots, RSS.
+Performance budgets + Lighthouse CI.
+Comments (basic moderation) or Giscus fallback.
+Newsletter (subscribe + double opt-in).
+Basic dashboard KPIs.
+Full (add 6–8 wks):
+
+Media library w/ folders + focal point, image transforms.
+Admin polish: kanban, bulk actions, inspector everywhere.
+Editor: TOC, internal-link suggester, content score gate, live device preview, reusable snippets, AI assist.
+SEO: redirects, slug history, broken-link crawler, audit log, schema templates, auto-OG.
+Engagement: reactions, bookmarks, threaded comments, related/recommended (vector).
+Analytics: RUM, decay, refresh queue, funnels, exports.
+Search: Meilisearch with facets and synonyms.
+Hardening: 2FA, advanced rate limits, Turnstile, backup drills.
+Optional: memberships, multilingual, A/B, PWA.
+Build priorities (in order)
+Design system + tokens + base layouts.
+Auth + RBAC + DB schema + migrations.
+Public article rendering (SSR + schema + perf budget) — this is the product.
+Admin shell + Posts CRUD + TipTap editor + autosave/revisions.
+SEO foundation (sitemap, robots, canonical, schema, OG, redirects).
+Search + listing/category/tag/author pages.
+Comments + reactions + bookmarks + newsletter.
+Analytics + dashboards + decay/refresh.
+AI assist + semantic related + auto-OG.
+Hardening, accessibility, performance, security, launch.
