@@ -18,9 +18,14 @@ export const Route = createRootRoute({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      {
-        title: 'TanStack Start Starter',
-      },
+        {
+          title: 'BlogSite — Editorial OS',
+        },
+        {
+          name: 'description',
+          content:
+            'A premium, SEO-first editorial platform with lightning-fast reading experiences and workflow-ready publishing.',
+        },
     ],
     links: [
       {
@@ -39,7 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
+      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[color-mix(in_oklab,var(--accent)_35%,transparent_65%)]">
         <Header />
         {children}
         <Footer />
