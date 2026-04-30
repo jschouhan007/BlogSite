@@ -24,7 +24,7 @@ const mockComments = [
     id: 'c1',
     author: 'Alex Rivera',
     email: 'alex@example.com',
-    body: 'Fantastic breakdown of the editorial pipeline. We've been using a similar system and it's transformed how we ship.',
+    body: "Fantastic breakdown of the editorial pipeline. We've been using a similar system and it's transformed how we ship.",
     post: 'The Editorial Operating System: From Pitch to Publish',
     status: 'Pending',
     date: '2026-04-27',
