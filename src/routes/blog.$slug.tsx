@@ -36,6 +36,171 @@ function slugify(str: string) {
     .replace(/^-|-$/g, '')
 }
 
+// ─── Mock comments data ──────────────────────────────────────────────────────
+
+interface Comment {
+  id: number
+  author: string
+  avatar: string
+  date: string
+  text: string
+  replies?: Comment[]
+}
+
+const mockComments: Comment[] = [
+  {
+    id: 1,
+    author: 'Priya Menon',
+    avatar:
+      'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=facearea&w=64&h=64&q=80',
+    date: '2 days ago',
+    text: 'This is exactly the framework I needed. The stage-based SLAs idea is something we\'re going to implement immediately — we\'ve been struggling with "draft purgatory" for months.',
+    replies: [
+      {
+        id: 4,
+        author: 'Jasmin Cho',
+        avatar:
+          'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=facearea&w=64&h=64&q=80',
+        date: '1 day ago',
+        text: 'So glad it resonated! The SLA idea only works if you actually revisit and adjust them — start conservative (3–5 days per stage) and tighten as you learn your team\'s rhythm.',
+      },
+    ],
+  },
+  {
+    id: 2,
+    author: 'Tobias Reinholt',
+    avatar:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&w=64&h=64&q=80',
+    date: '4 days ago',
+    text: "The split between structural pass and quality pass in Review is gold. We used to combine them and it created brutal bottlenecks. Separating concerns really does speed things up.",
+  },
+  {
+    id: 3,
+    author: 'Amara Osei',
+    avatar:
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&w=64&h=64&q=80',
+    date: '6 days ago',
+    text: 'How do you handle posts where the author AND editor roles are the same person? Most of our team wears multiple hats.',
+    replies: [
+      {
+        id: 5,
+        author: 'Ravi Patel',
+        avatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&w=64&h=64&q=80',
+        date: '5 days ago',
+        text: 'We faced the same. The fix was a mandatory 24-hour "cooling off" period between finishing the draft and doing the quality pass — your brain genuinely catches different things when you come back fresh.',
+      },
+    ],
+  },
+]
+
+function CommentsSection() {
+  const [comments] = useState<Comment[]>(mockComments)
+  const [openReply, setOpenReply] = useState<number | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [commentText, setCommentText] = useState('')
+  const [showForm, setShowForm] = useState(false)
+
+  const total = comments.reduce((acc, c) => acc + 1 + (c.replies?.length ?? 0), 0)
+
+  function CommentItem({ comment, depth = 0 }: { comment: Comment; depth?: number }) {
+    return (
+      <div className={depth > 0 ? 'mt-3 border-l-2 pl-4' : ''} style={depth > 0 ? { borderColor: 'var(--border)' } : {}}>
+        <div className="flex gap-3">
+          <img src={comment.avatar} alt={comment.author}
+            className="mt-0.5 h-8 w-8 flex-shrink-0 rounded-full object-cover" />
+          <div className="flex-1">
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-sm font-semibold">{comment.author}</span>
+              <span className="text-xs text-[var(--fg-muted)]">{comment.date}</span>
+            </div>
+            <p className="mt-1 text-sm leading-relaxed" style={{ color: 'var(--fg)' }}>
+              {comment.text}
+            </p>
+            <button
+              onClick={() => setOpenReply(openReply === comment.id ? null : comment.id)}
+              className="mt-1.5 text-xs font-medium transition-colors hover:text-[var(--primary)]"
+              style={{ color: 'var(--fg-muted)' }}
+            >
+              {openReply === comment.id ? 'Cancel' : '↩ Reply'}
+            </button>
+            {openReply === comment.id && (
+              <div className="mt-2 flex flex-col gap-2">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder={`Reply to ${comment.author}…`}
+                  rows={2}
+                  className="input-field w-full resize-none text-sm"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setOpenReply(null); setReplyText('') }}
+                    className="button-secondary text-xs"
+                  >
+                    Cancel
+                  </button>
+                  <button className="button-primary text-xs">Post reply</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {comment.replies?.map((r) => (
+          <CommentItem key={r.id} comment={r} depth={depth + 1} />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <section className="card mt-10 p-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">
+          Comments <span className="ml-1 text-base font-normal text-[var(--fg-muted)]">({total})</span>
+        </h2>
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="button-primary text-xs"
+          >
+            Leave a comment
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <div className="mt-4 flex flex-col gap-3 rounded-lg p-4"
+          style={{ background: 'color-mix(in oklab, var(--fg) 4%, transparent)' }}>
+          <p className="text-sm font-semibold">Join the conversation</p>
+          <textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Share your thoughts…"
+            rows={3}
+            className="input-field w-full resize-none text-sm"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setShowForm(false); setCommentText('') }}
+              className="button-secondary text-xs"
+            >
+              Cancel
+            </button>
+            <button className="button-primary text-xs">Post comment</button>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-col gap-6">
+        {comments.map((c) => (
+          <CommentItem key={c.id} comment={c} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function ReadingProgress() {
   const [progress, setProgress] = useState(0)
 
@@ -385,6 +550,9 @@ function BlogPost() {
                 </div>
               </section>
             )}
+
+            {/* Comments */}
+            <CommentsSection />
           </article>
 
           {/* Sticky TOC sidebar */}

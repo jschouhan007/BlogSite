@@ -34,6 +34,8 @@ import { Route as AdminSeoRouteImport } from './routes/admin/seo'
 import { Route as AdminRolesRouteImport } from './routes/admin/roles'
 import { Route as AdminRedirectsRouteImport } from './routes/admin/redirects'
 import { Route as AdminPostsRouteImport } from './routes/admin/posts'
+import { Route as AdminPostsNewRouteImport } from './routes/admin/posts.new'
+import { Route as AdminPostsIdRouteImport } from './routes/admin/posts.$id'
 import { Route as AdminMediaRouteImport } from './routes/admin/media'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminCategoriesRouteImport } from './routes/admin/categories'
@@ -165,6 +167,16 @@ const AdminPostsRoute = AdminPostsRouteImport.update({
   path: '/posts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPostsNewRoute = AdminPostsNewRouteImport.update({
+  id: '/posts/new',
+  path: '/posts/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPostsIdRoute = AdminPostsIdRouteImport.update({
+  id: '/posts/$id',
+  path: '/posts/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMediaRoute = AdminMediaRouteImport.update({
   id: '/media',
   path: '/media',
@@ -211,6 +223,8 @@ export interface FileRoutesByFullPath {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/posts': typeof AdminPostsRoute
+  '/admin/posts/new': typeof AdminPostsNewRoute
+  '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/redirects': typeof AdminRedirectsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/seo': typeof AdminSeoRoute
@@ -242,6 +256,8 @@ export interface FileRoutesByTo {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/posts': typeof AdminPostsRoute
+  '/admin/posts/new': typeof AdminPostsNewRoute
+  '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/redirects': typeof AdminRedirectsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/seo': typeof AdminSeoRoute
@@ -275,6 +291,8 @@ export interface FileRoutesById {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/posts': typeof AdminPostsRoute
+  '/admin/posts/new': typeof AdminPostsNewRoute
+  '/admin/posts/$id': typeof AdminPostsIdRoute
   '/admin/redirects': typeof AdminRedirectsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/seo': typeof AdminSeoRoute
@@ -309,6 +327,8 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/media'
     | '/admin/posts'
+    | '/admin/posts/new'
+    | '/admin/posts/$id'
     | '/admin/redirects'
     | '/admin/roles'
     | '/admin/seo'
@@ -340,6 +360,8 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/media'
     | '/admin/posts'
+    | '/admin/posts/new'
+    | '/admin/posts/$id'
     | '/admin/redirects'
     | '/admin/roles'
     | '/admin/seo'
@@ -372,6 +394,8 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/media'
     | '/admin/posts'
+    | '/admin/posts/new'
+    | '/admin/posts/$id'
     | '/admin/redirects'
     | '/admin/roles'
     | '/admin/seo'
@@ -581,6 +605,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPostsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/posts/new': {
+      id: '/admin/posts/new'
+      path: '/posts/new'
+      fullPath: '/admin/posts/new'
+      preLoaderRoute: typeof AdminPostsNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/posts/$id': {
+      id: '/admin/posts/$id'
+      path: '/posts/$id'
+      fullPath: '/admin/posts/$id'
+      preLoaderRoute: typeof AdminPostsIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/media': {
       id: '/admin/media'
       path: '/media'
@@ -626,6 +664,8 @@ interface AdminRouteChildren {
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminMediaRoute: typeof AdminMediaRoute
   AdminPostsRoute: typeof AdminPostsRoute
+  AdminPostsNewRoute: typeof AdminPostsNewRoute
+  AdminPostsIdRoute: typeof AdminPostsIdRoute
   AdminRedirectsRoute: typeof AdminRedirectsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSeoRoute: typeof AdminSeoRoute
@@ -642,6 +682,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommentsRoute: AdminCommentsRoute,
   AdminMediaRoute: AdminMediaRoute,
   AdminPostsRoute: AdminPostsRoute,
+  AdminPostsNewRoute: AdminPostsNewRoute,
+  AdminPostsIdRoute: AdminPostsIdRoute,
   AdminRedirectsRoute: AdminRedirectsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSeoRoute: AdminSeoRoute,

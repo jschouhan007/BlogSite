@@ -67,7 +67,7 @@ function AdminPostsPage() {
               {mockRows.length} total posts across all statuses.
             </p>
           </div>
-          <Link to="/blog" className="button-primary self-start">
+          <Link to="/admin/posts/new" className="button-primary self-start">
             + New post
           </Link>
         </div>
@@ -101,6 +101,7 @@ function AdminPostsPage() {
               <th className="px-5 py-3">Status</th>
               <th className="px-5 py-3">Date</th>
               <th className="px-5 py-3">Read</th>
+              <th className="px-5 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -142,6 +143,24 @@ function AdminPostsPage() {
                 </td>
                 <td className="px-5 py-3 text-[var(--fg-muted)]">
                   {row.readingTime}
+                </td>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to={`/admin/posts/${row.slug}`}
+                      className="button-secondary text-xs"
+                    >
+                      Edit
+                    </Link>
+                    {row.status === 'Published' && (
+                      <Link
+                        to={`/blog/${row.slug}`}
+                        className="text-xs text-[var(--fg-muted)] hover:text-[var(--primary)]"
+                      >
+                        View ↗
+                      </Link>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
